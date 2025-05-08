@@ -1,0 +1,86 @@
+.reservas-divi-module {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reservas-title {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.reservas-description {
+    color: #666;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.reservas-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.reservas-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.reservas-form-group label {
+    color: #333;
+    font-weight: 500;
+}
+
+.reservas-form-group input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.reservas-form-group input:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
+}
+
+.reservas-submit {
+    background-color: #0073aa;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.reservas-submit:hover {
+    background-color: #005177;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .reservas-divi-module {
+        padding: 15px;
+    }
+
+    .reservas-title {
+        font-size: 20px;
+    }
+
+    .reservas-form-group input {
+        padding: 8px;
+    }
+
+    .reservas-submit {
+        padding: 10px 15px;
+    }
+} 
