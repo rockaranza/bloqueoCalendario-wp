@@ -195,27 +195,38 @@ $cabanas = $wpdb->get_results("SELECT * FROM $table_name ORDER BY nombre ASC");
 <script>
 jQuery(document).ready(function($) {
     // Eliminar cabaña
-    $('.delete-cabana').click(function() {
+    $('.delete-cabana').click(function(e) {
+        e.preventDefault();
+        
         if (!confirm('<?php _e('¿Está seguro de que desea eliminar esta cabaña? Esta acción no se puede deshacer.', 'reservas'); ?>')) {
             return;
         }
         
         var cabanaId = $(this).data('cabana-id');
+        var button = $(this);
         
         $.ajax({
-            url: reservas_ajax.ajax_url,
+            url: ajaxurl,
             type: 'POST',
             data: {
                 action: 'reservas_delete_cabana',
-                nonce: reservas_ajax.nonce,
+                nonce: '<?php echo wp_create_nonce('reservas_delete_cabana'); ?>',
                 cabana_id: cabanaId
+            },
+            beforeSend: function() {
+                button.prop('disabled', true);
             },
             success: function(response) {
                 if (response.success) {
                     location.reload();
                 } else {
-                    alert(response.data.message);
+                    alert(response.data.message || '<?php _e('Error al eliminar la cabaña', 'reservas'); ?>');
+                    button.prop('disabled', false);
                 }
+            },
+            error: function() {
+                alert('<?php _e('Error al eliminar la cabaña', 'reservas'); ?>');
+                button.prop('disabled', false);
             }
         });
     });

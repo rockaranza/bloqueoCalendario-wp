@@ -15,6 +15,7 @@ class Reservas_Ajax {
         add_action('wp_ajax_enviar_reserva', array($this, 'enviar_reserva'));
         add_action('wp_ajax_obtener_eventos', array($this, 'obtener_eventos'));
         add_action('wp_ajax_reservas_update_status', array($this, 'handle_update_status'));
+        add_action('wp_ajax_reservas_delete_cabana', array($this, 'handle_delete_cabana'));
     }
 
     public function verificar_fechas() {
@@ -259,6 +260,40 @@ class Reservas_Ajax {
 
         wp_send_json_success(array(
             'message' => __('Estado actualizado correctamente.', 'reservas')
+        ));
+    }
+
+    public function handle_delete_cabana() {
+        check_ajax_referer('reservas_delete_cabana', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array(
+                'message' => __('No tienes permisos suficientes para realizar esta acción.', 'reservas')
+            ));
+        }
+
+        $cabana_id = intval($_POST['cabana_id']);
+
+        global $wpdb;
+        $table_cabanas = $wpdb->prefix . 'reservas_cabanas';
+        $table_reservas = $wpdb->prefix . 'reservas';
+        $table_bloqueos = $wpdb->prefix . 'reservas_bloqueos';
+
+        // Primero eliminar todas las reservas y bloqueos asociados
+        $wpdb->delete($table_reservas, array('cabana_id' => $cabana_id), array('%d'));
+        $wpdb->delete($table_bloqueos, array('cabana_id' => $cabana_id), array('%d'));
+
+        // Luego eliminar la cabaña
+        $resultado = $wpdb->delete($table_cabanas, array('id' => $cabana_id), array('%d'));
+
+        if ($resultado === false) {
+            wp_send_json_error(array(
+                'message' => __('Error al eliminar la cabaña.', 'reservas')
+            ));
+        }
+
+        wp_send_json_success(array(
+            'message' => __('Cabaña eliminada correctamente.', 'reservas')
         ));
     }
 }
