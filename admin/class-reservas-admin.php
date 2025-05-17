@@ -26,10 +26,14 @@ class Reservas_Admin {
             $this->version
         );
 
+        // jQuery UI
+        wp_enqueue_script('jquery-ui-datepicker');
+        wp_enqueue_style('jquery-ui', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
+
         wp_enqueue_script(
             'reservas-admin',
             plugin_dir_url(dirname(__FILE__)) . 'admin/js/reservas-admin.js',
-            array('jquery'),
+            array('jquery', 'jquery-ui-datepicker'),
             $this->version,
             true
         );
@@ -37,7 +41,11 @@ class Reservas_Admin {
         // Localizar script
         wp_localize_script('reservas-admin', 'reservas_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('reservas_nonce')
+            'nonce' => wp_create_nonce('reservas_nonce'),
+            'messages' => array(
+                'confirm_delete' => '¿Estás seguro de que deseas eliminar este bloqueo?',
+                'delete_error' => 'Error al eliminar el bloqueo'
+            )
         ));
     }
 
@@ -102,8 +110,6 @@ class Reservas_Admin {
 
     public function register_settings() {
         register_setting('reservas_options', 'reservas_admin_email');
-        register_setting('reservas_options', 'reservas_google_client_id');
-        register_setting('reservas_options', 'reservas_google_client_secret');
     }
 
     public function render_admin_page() {

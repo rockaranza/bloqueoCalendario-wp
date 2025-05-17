@@ -1,0 +1,63 @@
+/* Estilos para el panel de administración de reservas */
+.reservas-admin-container {
+    padding: 20px;
+}
+
+.reservas-form {
+    max-width: 600px;
+    margin: 20px 0;
+}
+
+.reservas-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.reservas-form input[type="text"],
+.reservas-form input[type="date"],
+.reservas-form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.reservas-form .submit {
+    margin-top: 20px;
+}
+
+/* Estilos para las tablas */
+.reservas-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.reservas-table th,
+.reservas-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.reservas-table th {
+    background-color: #f5f5f5;
+}
+
+/* Estilos para los botones de acción */
+.reservas-action-button {
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.delete-bloqueo {
+    color: #dc3545;
+    text-decoration: none;
+}
+
+.delete-bloqueo:hover {
+    text-decoration: underline;
+} 
