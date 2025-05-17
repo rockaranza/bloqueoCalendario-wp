@@ -12,18 +12,6 @@ if (!current_user_can('manage_options')) {
 <div class="wrap">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
     
-    <div class="reservas-admin-tabs">
-        <a href="<?php echo admin_url('admin.php?page=reservas'); ?>" class="nav-tab">
-            <?php _e('Reservas', 'reservas'); ?>
-        </a>
-        <a href="<?php echo admin_url('admin.php?page=reservas-config'); ?>" class="nav-tab">
-            <?php _e('Configuración', 'reservas'); ?>
-        </a>
-        <a href="<?php echo admin_url('admin.php?page=reservas-instructions'); ?>" class="nav-tab nav-tab-active">
-            <?php _e('Instrucciones', 'reservas'); ?>
-        </a>
-    </div>
-    
     <div class="reservas-admin-content">
         <div class="reservas-admin-section">
             <h2><?php _e('Instrucciones de Uso', 'reservas'); ?></h2>
@@ -31,7 +19,7 @@ if (!current_user_can('manage_options')) {
             <h3><?php _e('1. Configuración Inicial', 'reservas'); ?></h3>
             <ol>
                 <li>
-                    <?php _e('Ve a la pestaña "Configuración" y configura el email de notificaciones.', 'reservas'); ?>
+                    <?php _e('Ve al menú "Reservas > Configuración" y configura el email de notificaciones.', 'reservas'); ?>
                 </li>
                 <li>
                     <?php _e('Si deseas sincronizar con Google Calendar, configura las credenciales de la API.', 'reservas'); ?>
@@ -41,28 +29,44 @@ if (!current_user_can('manage_options')) {
             <h3><?php _e('2. Gestionar Cabañas', 'reservas'); ?></h3>
             <ol>
                 <li>
-                    <?php _e('En la pestaña "Reservas", encontrarás la sección "Gestionar Cabañas".', 'reservas'); ?>
+                    <?php _e('Ve al menú "Reservas > Cabañas" para gestionar tus cabañas.', 'reservas'); ?>
                 </li>
                 <li>
                     <?php _e('Para cada cabaña, puedes:', 'reservas'); ?>
                     <ul>
-                        <li><?php _e('Agregar bloqueos de fechas', 'reservas'); ?></li>
-                        <li><?php _e('Ver los bloqueos existentes', 'reservas'); ?></li>
-                        <li><?php _e('Eliminar bloqueos', 'reservas'); ?></li>
+                        <li><?php _e('Agregar una nueva cabaña', 'reservas'); ?></li>
+                        <li><?php _e('Ver el shortcode específico para esa cabaña', 'reservas'); ?></li>
+                        <li><?php _e('Eliminar una cabaña', 'reservas'); ?></li>
                     </ul>
                 </li>
             </ol>
             
-            <h3><?php _e('3. Gestionar Reservas', 'reservas'); ?></h3>
+            <h3><?php _e('3. Gestionar Bloqueos', 'reservas'); ?></h3>
             <ol>
                 <li>
-                    <?php _e('En la pestaña "Reservas", encontrarás la sección "Reservas Pendientes".', 'reservas'); ?>
+                    <?php _e('Ve al menú "Reservas > Bloqueos" para gestionar los bloqueos.', 'reservas'); ?>
                 </li>
                 <li>
-                    <?php _e('Para cada reserva, puedes:', 'reservas'); ?>
+                    <?php _e('Puedes:', 'reservas'); ?>
                     <ul>
-                        <li><?php _e('Confirmar la reserva', 'reservas'); ?></li>
-                        <li><?php _e('Rechazar la reserva', 'reservas'); ?></li>
+                        <li><?php _e('Ver un resumen de bloqueos por cabaña', 'reservas'); ?></li>
+                        <li><?php _e('Gestionar bloqueos específicos de cada cabaña', 'reservas'); ?></li>
+                        <li><?php _e('Agregar nuevos bloqueos', 'reservas'); ?></li>
+                        <li><?php _e('Eliminar bloqueos existentes', 'reservas'); ?></li>
+                    </ul>
+                </li>
+            </ol>
+            
+            <h3><?php _e('4. Gestionar Reservas', 'reservas'); ?></h3>
+            <ol>
+                <li>
+                    <?php _e('Ve al menú "Reservas" para gestionar las reservas.', 'reservas'); ?>
+                </li>
+                <li>
+                    <?php _e('Encontrarás:', 'reservas'); ?>
+                    <ul>
+                        <li><?php _e('Reservas Pendientes: Para confirmar o rechazar nuevas solicitudes', 'reservas'); ?></li>
+                        <li><?php _e('Todas las Reservas: Historial completo de reservas', 'reservas'); ?></li>
                     </ul>
                 </li>
                 <li>
@@ -75,8 +79,8 @@ if (!current_user_can('manage_options')) {
                 </li>
             </ol>
             
-            <h3><?php _e('4. Shortcodes Disponibles', 'reservas'); ?></h3>
-            <p><?php _e('Puedes usar los siguientes shortcodes en tus páginas o posts:', 'reservas'); ?></p>
+            <h3><?php _e('5. Shortcodes Disponibles', 'reservas'); ?></h3>
+            <p><?php _e('Cada cabaña tiene su propio shortcode que puedes encontrar en la sección "Cabañas". Los shortcodes disponibles son:', 'reservas'); ?></p>
             
             <table class="wp-list-table widefat fixed striped">
                 <thead>
@@ -87,19 +91,19 @@ if (!current_user_can('manage_options')) {
                 </thead>
                 <tbody>
                     <tr>
-                        <td><code>[reservas_calendario cabana_id="1"]</code></td>
+                        <td><code>[reservas_calendario cabana_id="ID"]</code></td>
                         <td>
                             <?php _e('Muestra el calendario de reservas para una cabaña específica.', 'reservas'); ?>
                             <br>
-                            <small><?php _e('Reemplaza "1" con el ID de la cabaña.', 'reservas'); ?></small>
+                            <small><?php _e('Reemplaza "ID" con el ID de la cabaña que puedes encontrar en la sección Cabañas.', 'reservas'); ?></small>
                         </td>
                     </tr>
                     <tr>
-                        <td><code>[reservas_formulario cabana_id="1"]</code></td>
+                        <td><code>[reservas_formulario cabana_id="ID"]</code></td>
                         <td>
                             <?php _e('Muestra el formulario de reserva para una cabaña específica.', 'reservas'); ?>
                             <br>
-                            <small><?php _e('Reemplaza "1" con el ID de la cabaña.', 'reservas'); ?></small>
+                            <small><?php _e('Reemplaza "ID" con el ID de la cabaña que puedes encontrar en la sección Cabañas.', 'reservas'); ?></small>
                         </td>
                     </tr>
                 </tbody>
@@ -119,7 +123,7 @@ if (!current_user_can('manage_options')) {
             <div class="reservas-faq">
                 <h4><?php _e('¿Cómo puedo recibir notificaciones de nuevas reservas?', 'reservas'); ?></h4>
                 <p>
-                    <?php _e('Configura el email de notificaciones en la pestaña "Configuración". Recibirás un email cada vez que se realice una nueva solicitud de reserva.', 'reservas'); ?>
+                    <?php _e('Configura el email de notificaciones en el menú "Reservas > Configuración". Recibirás un email cada vez que se realice una nueva solicitud de reserva.', 'reservas'); ?>
                 </p>
             </div>
             
@@ -134,19 +138,6 @@ if (!current_user_can('manage_options')) {
 </div>
 
 <style>
-.reservas-admin-tabs {
-    margin-bottom: 20px;
-}
-
-.reservas-admin-tabs .nav-tab {
-    margin-right: 10px;
-}
-
-.reservas-admin-tabs .nav-tab-active {
-    background: #fff;
-    border-bottom: 1px solid #fff;
-}
-
 .reservas-admin-content {
     background: #fff;
     padding: 20px;

@@ -65,7 +65,7 @@ class Reservas_Admin {
         add_submenu_page(
             'reservas',
             __('Reservas', 'reservas'),
-            __('Reservas', 'reservas'),
+            '<span class="dashicons dashicons-list-view" style="margin-right: 5px;"></span>' . __('Reservas', 'reservas'),
             'manage_options',
             'reservas',
             array($this, 'render_admin_page')
@@ -74,7 +74,7 @@ class Reservas_Admin {
         add_submenu_page(
             'reservas',
             __('Cabañas', 'reservas'),
-            __('Cabañas', 'reservas'),
+            '<span class="dashicons dashicons-admin-home" style="margin-right: 5px;"></span>' . __('Cabañas', 'reservas'),
             'manage_options',
             'reservas-cabanas',
             array($this, 'render_cabanas_page')
@@ -83,7 +83,7 @@ class Reservas_Admin {
         add_submenu_page(
             'reservas',
             __('Bloqueos', 'reservas'),
-            __('Bloqueos', 'reservas'),
+            '<span class="dashicons dashicons-lock" style="margin-right: 5px;"></span>' . __('Bloqueos', 'reservas'),
             'manage_options',
             'reservas-bloqueos',
             array($this, 'render_bloqueos_page')
@@ -92,7 +92,7 @@ class Reservas_Admin {
         add_submenu_page(
             'reservas',
             __('Configuración', 'reservas'),
-            __('Configuración', 'reservas'),
+            '<span class="dashicons dashicons-admin-settings" style="margin-right: 5px;"></span>' . __('Configuración', 'reservas'),
             'manage_options',
             'reservas-config',
             array($this, 'render_config_page')
@@ -101,7 +101,7 @@ class Reservas_Admin {
         add_submenu_page(
             'reservas',
             __('Instrucciones', 'reservas'),
-            __('Instrucciones', 'reservas'),
+            '<span class="dashicons dashicons-info" style="margin-right: 5px;"></span>' . __('Instrucciones', 'reservas'),
             'manage_options',
             'reservas-instructions',
             array($this, 'render_instructions_page')

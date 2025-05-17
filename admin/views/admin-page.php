@@ -34,18 +34,6 @@ $reservas_todas = $wpdb->get_results(
 
 <div class="wrap">
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
-    
-    <div class="reservas-admin-tabs">
-        <a href="<?php echo admin_url('admin.php?page=reservas'); ?>" class="nav-tab nav-tab-active">
-            <?php _e('Reservas', 'reservas'); ?>
-        </a>
-        <a href="<?php echo admin_url('admin.php?page=reservas-config'); ?>" class="nav-tab">
-            <?php _e('Configuración', 'reservas'); ?>
-        </a>
-        <a href="<?php echo admin_url('admin.php?page=reservas-instructions'); ?>" class="nav-tab">
-            <?php _e('Instrucciones', 'reservas'); ?>
-        </a>
-    </div>
 
     <div class="reservas-admin-content">
         <div class="reservas-admin-section">
@@ -150,19 +138,6 @@ $reservas_todas = $wpdb->get_results(
 </div>
 
 <style>
-.reservas-admin-tabs {
-    margin-bottom: 20px;
-}
-
-.reservas-admin-tabs .nav-tab {
-    margin-right: 10px;
-}
-
-.reservas-admin-tabs .nav-tab-active {
-    background: #fff;
-    border-bottom: 1px solid #fff;
-}
-
 .reservas-admin-section {
     background: #fff;
     padding: 20px;
