@@ -51,7 +51,6 @@ $reservas_todas = $wpdb->get_results(
                             <th><?php _e('Teléfono', 'reservas'); ?></th>
                             <th><?php _e('Fecha Inicio', 'reservas'); ?></th>
                             <th><?php _e('Fecha Fin', 'reservas'); ?></th>
-                            <th><?php _e('Comentarios', 'reservas'); ?></th>
                             <th><?php _e('Acciones', 'reservas'); ?></th>
                         </tr>
                     </thead>
@@ -64,7 +63,6 @@ $reservas_todas = $wpdb->get_results(
                                 <td><?php echo esc_html($reserva->telefono); ?></td>
                                 <td><?php echo esc_html($reserva->fecha_inicio); ?></td>
                                 <td><?php echo esc_html($reserva->fecha_fin); ?></td>
-                                <td><?php echo esc_html($reserva->comentarios); ?></td>
                                 <td>
                                     <button class="button button-primary confirm-reserva" 
                                             data-reserva-id="<?php echo esc_attr($reserva->id); ?>">
@@ -98,7 +96,6 @@ $reservas_todas = $wpdb->get_results(
                             <th><?php _e('Fecha Inicio', 'reservas'); ?></th>
                             <th><?php _e('Fecha Fin', 'reservas'); ?></th>
                             <th><?php _e('Estado', 'reservas'); ?></th>
-                            <th><?php _e('Comentarios', 'reservas'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -127,7 +124,6 @@ $reservas_todas = $wpdb->get_results(
                                         ?>
                                     </span>
                                 </td>
-                                <td><?php echo esc_html($reserva->comentarios); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
