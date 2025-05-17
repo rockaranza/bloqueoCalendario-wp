@@ -12,58 +12,104 @@ class Reservas_Public {
         $this->version = $version;
     }
 
-    public function enqueue_styles() {
-        wp_enqueue_style('jquery-ui', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css', array(), '1.12.1');
-        wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/reservas-public.css', array(), $this->version);
-        wp_enqueue_style($this->plugin_name . '-datepicker', plugin_dir_url(__FILE__) . 'css/datepicker.css', array(), $this->version);
-    }
-
     public function enqueue_scripts() {
-        wp_enqueue_script('jquery');
-        wp_enqueue_script('jquery-ui-core');
-        wp_enqueue_script('jquery-ui-datepicker');
-        wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/reservas-public.js', array('jquery', 'jquery-ui-datepicker'), $this->version, true);
-        
-        wp_localize_script($this->plugin_name, 'reservas_ajax', array(
+        // FullCalendar
+        wp_enqueue_style(
+            'fullcalendar',
+            'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css',
+            array(),
+            '5.11.3'
+        );
+
+        wp_enqueue_script(
+            'fullcalendar',
+            'https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js',
+            array('jquery'),
+            '5.11.3',
+            true
+        );
+
+        // Estilos y scripts del plugin
+        wp_enqueue_style(
+            'reservas-public',
+            plugin_dir_url(dirname(__FILE__)) . 'public/css/reservas-public.css',
+            array(),
+            $this->version
+        );
+
+        wp_enqueue_script(
+            'reservas-public',
+            plugin_dir_url(dirname(__FILE__)) . 'public/js/reservas-public.js',
+            array('jquery', 'fullcalendar'),
+            $this->version,
+            true
+        );
+
+        // Localizar script
+        wp_localize_script('reservas-public', 'reservas_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('reservas_nonce'),
-            'events' => $this->get_events(),
-            'messages' => array(
-                'select_dates' => __('Por favor, seleccione las fechas de su reserva.', 'reservas'),
-                'dates_blocked' => __('Las fechas seleccionadas están bloqueadas. Por favor, seleccione otras fechas.', 'reservas'),
-                'request_sent' => __('Solicitud enviada correctamente. Nos pondremos en contacto con usted pronto.', 'reservas'),
-                'request_error' => __('Error al enviar la solicitud. Por favor, inténtelo de nuevo.', 'reservas')
-            )
+            'nonce' => wp_create_nonce('reservas_nonce')
         ));
     }
 
-    private function get_events() {
-        global $wpdb;
-        $table_name = $wpdb->prefix . 'reservas_bloqueos';
-        $events = array();
-
-        // Obtener fechas bloqueadas
-        $bloqueos = $wpdb->get_results("SELECT * FROM $table_name");
-        foreach ($bloqueos as $bloqueo) {
-            $events[] = array(
-                'title' => $bloqueo->motivo,
-                'start' => $bloqueo->fecha_inicio,
-                'end' => $bloqueo->fecha_fin,
-                'extendedProps' => array(
-                    'type' => 'blocked'
-                )
-            );
-        }
-
-        return $events;
+    public function enqueue_styles() {
+        wp_enqueue_style(
+            'reservas-public',
+            plugin_dir_url(dirname(__FILE__)) . 'public/css/reservas-public.css',
+            array(),
+            $this->version
+        );
     }
 
     public function render_calendario($atts) {
-        $this->enqueue_styles();
+        // Asegurarse de que los scripts y estilos estén cargados
         $this->enqueue_scripts();
-        
+        $this->enqueue_styles();
+
+        // Obtener el ID de la cabaña
+        $cabana_id = isset($atts['cabana_id']) ? intval($atts['cabana_id']) : 0;
+
+        if (!$cabana_id) {
+            return '<p>' . __('ID de cabaña no válido', 'reservas') . '</p>';
+        }
+
+        // Obtener información de la cabaña
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'reservas_cabanas';
+        $cabana = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $cabana_id));
+
+        if (!$cabana) {
+            return '<p>' . __('Cabaña no encontrada', 'reservas') . '</p>';
+        }
+
         ob_start();
-        include plugin_dir_path(__FILE__) . 'views/calendario.php';
+        require_once plugin_dir_path(__FILE__) . 'views/calendario.php';
+        return ob_get_clean();
+    }
+
+    public function render_formulario($atts) {
+        // Asegurarse de que los scripts y estilos estén cargados
+        $this->enqueue_scripts();
+        $this->enqueue_styles();
+
+        // Obtener el ID de la cabaña
+        $cabana_id = isset($atts['cabana_id']) ? intval($atts['cabana_id']) : 0;
+
+        if (!$cabana_id) {
+            return '<p>' . __('ID de cabaña no válido', 'reservas') . '</p>';
+        }
+
+        // Obtener información de la cabaña
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'reservas_cabanas';
+        $cabana = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE id = %d", $cabana_id));
+
+        if (!$cabana) {
+            return '<p>' . __('Cabaña no encontrada', 'reservas') . '</p>';
+        }
+
+        ob_start();
+        require_once plugin_dir_path(__FILE__) . 'views/formulario-modal.php';
         return ob_get_clean();
     }
 } 

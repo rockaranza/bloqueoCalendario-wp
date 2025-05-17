@@ -53,4 +53,15 @@ Este plugin está licenciado bajo GPL v2 o posterior.
 
 ## Créditos
 
-Desarrollado por [Tu Nombre](https://tusitio.com) 
+Desarrollado por [Tu Nombre](https://tusitio.com)
+
+## Configuración de Calendario iCal
+
+1. Crea una cuenta en un servicio de calendario que soporte iCal (como Google Calendar, Apple Calendar, etc.)
+2. Crea un nuevo calendario para las reservas
+3. Obtén la URL pública del calendario en formato iCal
+4. Ve a la página de configuración del plugin en WordPress
+5. Pega la URL del calendario iCal en el campo correspondiente
+6. Guarda los cambios
+
+El sistema actualizará automáticamente los bloqueos cada hora. 

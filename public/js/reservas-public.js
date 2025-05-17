@@ -1,39 +1,28 @@
 jQuery(document).ready(function($) {
-    // Inicializar el calendario de disponibilidad
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        header: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'month,agendaWeek,agendaDay'
-        },
-        initialView: 'dayGridMonth',
-        selectable: true,
-        events: reservas_events,
-        eventDidMount: function(info) {
-            if (info.event.extendedProps.type === 'blocked') {
-                info.el.classList.add('blocked');
-            } else if (info.event.extendedProps.type === 'reserved') {
-                info.el.classList.add('reserved');
-            }
-        }
+    // Debug para verificar los bloqueos recibidos
+    console.log('Bloqueos recibidos:', reservas_ajax.bloqueos);
+    
+    // Convertir las fechas bloqueadas a objetos Date
+    var blockedDatesArray = reservas_ajax.bloqueos.map(function(bloqueo) {
+        return {
+            start: new Date(bloqueo.start),
+            end: new Date(bloqueo.end)
+        };
     });
-
-    // Renderizar el calendario de disponibilidad
-    calendar.render();
-
-    // Inicializar el datepicker para los campos de fecha
-    var blockedDates = reservas_events;
-    var blockedDatesArray = blockedDates
-        .filter(event => event.extendedProps.type === 'blocked')
-        .map(event => ({
-            start: new Date(event.start),
-            end: new Date(event.end)
-        }));
+    
+    console.log('Fechas bloqueadas procesadas:', blockedDatesArray);
 
     function isDateBlocked(date) {
-        return blockedDatesArray.some(blocked => {
-            return date >= blocked.start && date <= blocked.end;
+        var checkDate = new Date(date);
+        checkDate.setHours(0, 0, 0, 0);
+        
+        return blockedDatesArray.some(function(bloqueo) {
+            var start = new Date(bloqueo.start);
+            start.setHours(0, 0, 0, 0);
+            var end = new Date(bloqueo.end);
+            end.setHours(0, 0, 0, 0);
+            
+            return checkDate >= start && checkDate <= end;
         });
     }
 
@@ -43,7 +32,7 @@ jQuery(document).ready(function($) {
         minDate: 0,
         beforeShowDay: function(date) {
             var isBlocked = isDateBlocked(date);
-            return [!isBlocked, isBlocked ? 'blocked' : ''];
+            return [!isBlocked, isBlocked ? 'ui-datepicker-blocked' : ''];
         },
         onSelect: function(dateText, inst) {
             var inputId = inst.id;
@@ -56,7 +45,7 @@ jQuery(document).ready(function($) {
                 $('#' + otherInputId).val('');
             }
             
-            $('.form-messages').hide();
+            validateDates();
         },
         showOn: 'both',
         buttonImage: '',
@@ -82,31 +71,46 @@ jQuery(document).ready(function($) {
     $('#fecha_inicio').datepicker(datepickerOptions);
     $('#fecha_fin').datepicker(datepickerOptions);
 
+    function validateDates() {
+        var fechaInicio = $('#fecha_inicio').val();
+        var fechaFin = $('#fecha_fin').val();
+        var isValid = true;
+        
+        if (fechaInicio && fechaFin) {
+            var inicio = new Date(fechaInicio);
+            var fin = new Date(fechaFin);
+            inicio.setHours(0, 0, 0, 0);
+            fin.setHours(0, 0, 0, 0);
+            
+            if (fin < inicio) {
+                $('#fecha_fin_error').text('La fecha de salida debe ser posterior a la fecha de entrada').show();
+                isValid = false;
+            } else {
+                $('#fecha_fin_error').hide();
+            }
+            
+            // Verificar fechas bloqueadas
+            var currentDate = new Date(inicio);
+            while (currentDate <= fin) {
+                if (isDateBlocked(currentDate)) {
+                    $('.form-messages').removeClass('success').addClass('error')
+                        .text('Las fechas seleccionadas incluyen días bloqueados')
+                        .show();
+                    isValid = false;
+                    break;
+                }
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        }
+        
+        return isValid;
+    }
+
     // Manejar el envío del formulario
     $('#reservas-form').on('submit', function(e) {
         e.preventDefault();
         
-        // Verificar si se han seleccionado fechas
-        if (!$('#fecha_inicio').val() || !$('#fecha_fin').val()) {
-            $('.form-messages').removeClass('success').addClass('error')
-                .html(reservas_ajax.messages.select_dates)
-                .show();
-            return;
-        }
-        
-        var fechaInicio = new Date($('#fecha_inicio').val());
-        var fechaFin = new Date($('#fecha_fin').val());
-        
-        // Verificar si las fechas seleccionadas están bloqueadas
-        var isBlocked = blockedDatesArray.some(blocked => {
-            return (fechaInicio >= blocked.start && fechaInicio <= blocked.end) ||
-                   (fechaFin >= blocked.start && fechaFin <= blocked.end);
-        });
-        
-        if (isBlocked) {
-            $('.form-messages').removeClass('success').addClass('error')
-                .html(reservas_ajax.messages.dates_blocked)
-                .show();
+        if (!validateDates()) {
             return;
         }
         
@@ -115,17 +119,16 @@ jQuery(document).ready(function($) {
         $.ajax({
             url: reservas_ajax.ajax_url,
             type: 'POST',
-            data: formData + '&action=reservas_submit_request',
+            data: formData,
             success: function(response) {
                 if (response.success) {
                     $('.form-messages').removeClass('error').addClass('success')
-                        .html(reservas_ajax.messages.request_sent)
+                        .text(reservas_ajax.messages.request_sent)
                         .show();
                     $('#reservas-form')[0].reset();
-                    calendar.refetchEvents();
                 } else {
                     $('.form-messages').removeClass('success').addClass('error')
-                        .html(response.data.message || reservas_ajax.messages.request_error)
+                        .text(response.data.message || reservas_ajax.messages.request_error)
                         .show();
                 }
             }

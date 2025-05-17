@@ -25,22 +25,37 @@ require_once RESERVAS_PLUGIN_DIR . 'includes/class-reservas.php';
 
 // Inicializar el plugin
 function reservas_init() {
-    return Reservas::get_instance();
+    $plugin = Reservas::get_instance();
+    $plugin->run();
 }
 add_action('plugins_loaded', 'reservas_init');
 
 // Activar el plugin
 function reservas_activate() {
-    // Crear tablas necesarias en la base de datos
     require_once RESERVAS_PLUGIN_DIR . 'includes/class-reservas-activator.php';
     Reservas_Activator::activate();
+    
+    // Agregar opción por defecto para iCal
+    add_option('reservas_ical_url', '');
 }
 register_activation_hook(__FILE__, 'reservas_activate');
 
 // Desactivar el plugin
 function reservas_deactivate() {
-    // Limpiar datos si es necesario
     require_once RESERVAS_PLUGIN_DIR . 'includes/class-reservas-deactivator.php';
     Reservas_Deactivator::deactivate();
 }
-register_deactivation_hook(__FILE__, 'reservas_deactivate'); 
+register_deactivation_hook(__FILE__, 'reservas_deactivate');
+
+// Registrar opciones de configuración
+add_action('admin_init', function() {
+    register_setting(
+        'reservas_options',
+        'reservas_ical_url',
+        array(
+            'type' => 'string',
+            'sanitize_callback' => 'esc_url_raw',
+            'default' => ''
+        )
+    );
+}); 
