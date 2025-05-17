@@ -121,7 +121,11 @@ class Reservas_Admin {
     }
 
     public function render_bloqueos_page() {
-        require_once plugin_dir_path(__FILE__) . 'views/bloqueos-page.php';
+        if (isset($_GET['cabana_id'])) {
+            require_once plugin_dir_path(__FILE__) . 'views/bloqueos-cabana-page.php';
+        } else {
+            require_once plugin_dir_path(__FILE__) . 'views/bloqueos-page.php';
+        }
     }
 
     public function render_config_page() {
