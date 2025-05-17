@@ -1,4 +1,10 @@
-/* Estilos para el panel de administración de reservas */
+/**
+ * Estilos para el panel de administración de Reservas
+ *
+ * @package Reservas
+ * @since 1.0.0
+ */
+
 .reservas-admin-container {
     padding: 20px;
 }
@@ -60,4 +66,115 @@
 
 .delete-bloqueo:hover {
     text-decoration: underline;
+}
+
+.reservas-admin-section {
+    background: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.button-link-delete {
+    color: #dc3545;
+}
+
+.button-link-delete:hover {
+    color: #c82333;
+}
+
+.reservas-estado {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.reservas-estado-pendiente {
+    background-color: #ffc107;
+    color: #856404;
+}
+
+.reservas-estado-confirmada {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.reservas-estado-rechazada {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+/* Contenedor de tabla */
+.table-container {
+    overflow-x: auto;
+    margin: 0 -20px;
+    padding: 0 20px;
+    min-width: 640px;
+    width: fit-content;
+}
+
+/* Contenedor de shortcodes */
+.shortcode-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 320px;
+}
+
+.shortcode-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    min-width: 320px;
+}
+
+.shortcode-item code {
+    background: #f8f9fa;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 13px;
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 240px;
+}
+
+/* Botones de acción */
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 120px;
+}
+
+.action-buttons .button {
+    text-align: center;
+    justify-content: center;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+    .table-container {
+        min-width: 480px;
+    }
+    
+    .shortcode-container {
+        min-width: 240px;
+    }
+    
+    .shortcode-item {
+        min-width: 240px;
+        flex-wrap: wrap;
+    }
+    
+    .shortcode-item code {
+        width: 100%;
+        margin: 5px 0;
+        min-width: 160px;
+    }
 } 

@@ -26,6 +26,43 @@ class Reservas_Admin {
             $this->version
         );
 
+        // Estilos específicos por página
+        if (strpos($hook, 'reservas-config') !== false) {
+            wp_enqueue_style(
+                'reservas-config',
+                plugin_dir_url(dirname(__FILE__)) . 'admin/css/reservas-config.css',
+                array(),
+                $this->version
+            );
+        }
+
+        if (strpos($hook, 'reservas-bloqueos') !== false) {
+            wp_enqueue_style(
+                'reservas-bloqueos',
+                plugin_dir_url(dirname(__FILE__)) . 'admin/css/reservas-bloqueos.css',
+                array(),
+                $this->version
+            );
+        }
+
+        if (strpos($hook, 'reservas-calendario') !== false) {
+            wp_enqueue_style(
+                'reservas-calendario',
+                plugin_dir_url(dirname(__FILE__)) . 'admin/css/reservas-calendario.css',
+                array(),
+                $this->version
+            );
+        }
+
+        if (strpos($hook, 'reservas-instructions') !== false) {
+            wp_enqueue_style(
+                'reservas-instructions',
+                plugin_dir_url(dirname(__FILE__)) . 'admin/css/reservas-instructions.css',
+                array(),
+                $this->version
+            );
+        }
+
         // jQuery UI
         wp_enqueue_script('jquery-ui-datepicker');
         wp_enqueue_style('jquery-ui', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');

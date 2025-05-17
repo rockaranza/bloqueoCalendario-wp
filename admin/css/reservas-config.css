@@ -1,0 +1,13 @@
+/**
+ * Estilos para la página de configuración de Reservas
+ *
+ * @package Reservas
+ * @since 1.0.0
+ */
+
+.reservas-admin-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+} 

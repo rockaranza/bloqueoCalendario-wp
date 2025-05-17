@@ -1,0 +1,34 @@
+/**
+ * Estilos para la página de bloqueos de Reservas
+ *
+ * @package Reservas
+ * @since 1.0.0
+ */
+
+.card {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.wp-list-table {
+    margin-top: 10px;
+}
+
+.button-link-delete {
+    color: #dc3545;
+}
+
+.button-link-delete:hover {
+    color: #c82333;
+}
+
+.reserva-confirmada {
+    background-color: #f8f9fa;
+}
+
+.reserva-confirmada td {
+    color: #28a745;
+} 

@@ -37,6 +37,13 @@ class Reservas_Public {
             $this->version
         );
 
+        wp_enqueue_style(
+            'reservas-modal',
+            plugin_dir_url(dirname(__FILE__)) . 'public/css/reservas-modal.css',
+            array(),
+            $this->version
+        );
+
         wp_enqueue_script(
             'reservas-public',
             plugin_dir_url(dirname(__FILE__)) . 'public/js/reservas-public.js',

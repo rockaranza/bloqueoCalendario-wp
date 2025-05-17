@@ -21,9 +21,6 @@ if (!current_user_can('manage_options')) {
                 <li>
                     <?php _e('Ve al menú "Reservas > Configuración" y configura el email de notificaciones.', 'reservas'); ?>
                 </li>
-                <li>
-                    <?php _e('Si deseas sincronizar con Google Calendar, configura las credenciales de la API.', 'reservas'); ?>
-                </li>
             </ol>
             
             <h3><?php _e('2. Gestionar Cabañas', 'reservas'); ?></h3>
@@ -36,6 +33,7 @@ if (!current_user_can('manage_options')) {
                     <ul>
                         <li><?php _e('Agregar una nueva cabaña', 'reservas'); ?></li>
                         <li><?php _e('Ver el shortcode específico para esa cabaña', 'reservas'); ?></li>
+                        <li><?php _e('Administrar los bloqueos de esa cabaña', 'reservas'); ?></li>
                         <li><?php _e('Eliminar una cabaña', 'reservas'); ?></li>
                     </ul>
                 </li>
@@ -57,29 +55,7 @@ if (!current_user_can('manage_options')) {
                 </li>
             </ol>
             
-            <h3><?php _e('4. Gestionar Reservas', 'reservas'); ?></h3>
-            <ol>
-                <li>
-                    <?php _e('Ve al menú "Reservas" para gestionar las reservas.', 'reservas'); ?>
-                </li>
-                <li>
-                    <?php _e('Encontrarás:', 'reservas'); ?>
-                    <ul>
-                        <li><?php _e('Reservas Pendientes: Para confirmar o rechazar nuevas solicitudes', 'reservas'); ?></li>
-                        <li><?php _e('Todas las Reservas: Historial completo de reservas', 'reservas'); ?></li>
-                    </ul>
-                </li>
-                <li>
-                    <?php _e('Cuando confirmas una reserva:', 'reservas'); ?>
-                    <ul>
-                        <li><?php _e('Se envía un email de confirmación al cliente', 'reservas'); ?></li>
-                        <li><?php _e('Se bloquean las fechas en el calendario', 'reservas'); ?></li>
-                        <li><?php _e('Si está configurado, se agrega al calendario de Google', 'reservas'); ?></li>
-                    </ul>
-                </li>
-            </ol>
-            
-            <h3><?php _e('5. Shortcodes Disponibles', 'reservas'); ?></h3>
+            <h3><?php _e('4. Shortcodes Disponibles', 'reservas'); ?></h3>
             <p><?php _e('Cada cabaña tiene su propio shortcode que puedes encontrar en la sección "Cabañas". Los shortcodes disponibles son:', 'reservas'); ?></p>
             
             <table class="wp-list-table widefat fixed striped">
@@ -98,41 +74,8 @@ if (!current_user_can('manage_options')) {
                             <small><?php _e('Reemplaza "ID" con el ID de la cabaña que puedes encontrar en la sección Cabañas.', 'reservas'); ?></small>
                         </td>
                     </tr>
-                    <tr>
-                        <td><code>[reservas_formulario cabana_id="ID"]</code></td>
-                        <td>
-                            <?php _e('Muestra el formulario de reserva para una cabaña específica.', 'reservas'); ?>
-                            <br>
-                            <small><?php _e('Reemplaza "ID" con el ID de la cabaña que puedes encontrar en la sección Cabañas.', 'reservas'); ?></small>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
-        </div>
-        
-        <div class="reservas-admin-section">
-            <h2><?php _e('Preguntas Frecuentes', 'reservas'); ?></h2>
-            
-            <div class="reservas-faq">
-                <h4><?php _e('¿Cómo puedo cambiar el diseño del calendario?', 'reservas'); ?></h4>
-                <p>
-                    <?php _e('Puedes personalizar el diseño del calendario agregando CSS personalizado en tu tema o usando un plugin de personalización de CSS.', 'reservas'); ?>
-                </p>
-            </div>
-            
-            <div class="reservas-faq">
-                <h4><?php _e('¿Cómo puedo recibir notificaciones de nuevas reservas?', 'reservas'); ?></h4>
-                <p>
-                    <?php _e('Configura el email de notificaciones en el menú "Reservas > Configuración". Recibirás un email cada vez que se realice una nueva solicitud de reserva.', 'reservas'); ?>
-                </p>
-            </div>
-            
-            <div class="reservas-faq">
-                <h4><?php _e('¿Cómo funciona la sincronización con Google Calendar?', 'reservas'); ?></h4>
-                <p>
-                    <?php _e('Cuando confirmas una reserva, se crea automáticamente un evento en el calendario de Google configurado. Esto te permite tener todas tus reservas sincronizadas en un solo lugar.', 'reservas'); ?>
-                </p>
-            </div>
         </div>
     </div>
 </div>

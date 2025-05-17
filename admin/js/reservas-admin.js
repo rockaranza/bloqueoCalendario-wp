@@ -1,4 +1,13 @@
-jQuery(document).ready(function($) {
+/**
+ * JavaScript para el panel de administración de Reservas
+ *
+ * @package Reservas
+ * @since 1.0.0
+ */
+
+(function($) {
+    'use strict';
+
     // Inicializar datepicker
     $('.datepicker').datepicker({
         dateFormat: 'yy-mm-dd',
@@ -66,4 +75,83 @@ jQuery(document).ready(function($) {
             });
         }
     });
-}); 
+
+    // Confirmar reserva
+    $('.confirm-reserva').on('click', function(e) {
+        e.preventDefault();
+        
+        const button = $(this);
+        const reservaId = button.data('reserva-id');
+        const nonce = button.data('nonce');
+
+        if (!confirm(reservasAdmin.i18n.confirmReserva)) {
+            return;
+        }
+
+        // Deshabilitar botón durante la petición
+        button.prop('disabled', true);
+
+        $.ajax({
+            url: reservasAdmin.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'reservas_confirm_reserva',
+                reserva_id: reservaId,
+                nonce: nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.data.message || reservasAdmin.i18n.errorUpdate);
+                }
+            },
+            error: function() {
+                alert(reservasAdmin.i18n.errorConnection);
+            },
+            complete: function() {
+                button.prop('disabled', false);
+            }
+        });
+    });
+    
+    // Rechazar reserva
+    $('.reject-reserva').on('click', function(e) {
+        e.preventDefault();
+        
+        const button = $(this);
+        const reservaId = button.data('reserva-id');
+        const nonce = button.data('nonce');
+
+        if (!confirm(reservasAdmin.i18n.rejectReserva)) {
+            return;
+        }
+
+        // Deshabilitar botón durante la petición
+        button.prop('disabled', true);
+
+        $.ajax({
+            url: reservas_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'reservas_reject_reserva',
+                reserva_id: reservaId,
+                nonce: nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.data.message || reservasAdmin.i18n.errorUpdate);
+                }
+            },
+            error: function() {
+                alert(reservasAdmin.i18n.errorConnection);
+            },
+            complete: function() {
+                button.prop('disabled', false);
+            }
+        });
+    });
+
+})(jQuery); 

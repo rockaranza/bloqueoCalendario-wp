@@ -1,9 +1,19 @@
 <?php
+/**
+ * Clase para manejar las peticiones AJAX
+ *
+ * @package Reservas
+ * @since 1.0.0
+ */
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 class Reservas_Ajax {
+    /**
+     * Constructor de la clase
+     */
     public function __construct() {
         // Acciones para usuarios no autenticados
         add_action('wp_ajax_nopriv_verificar_fechas', array($this, 'verificar_fechas'));
@@ -16,14 +26,25 @@ class Reservas_Ajax {
         add_action('wp_ajax_obtener_eventos', array($this, 'obtener_eventos'));
         add_action('wp_ajax_reservas_update_status', array($this, 'handle_update_status'));
         add_action('wp_ajax_reservas_delete_cabana', array($this, 'handle_delete_cabana'));
+        add_action('wp_ajax_reservas_confirm_reserva', array($this, 'handle_confirm_reserva'));
+        add_action('wp_ajax_reservas_reject_reserva', array($this, 'handle_reject_reserva'));
     }
 
+    /**
+     * Verifica la disponibilidad de fechas
+     */
     public function verificar_fechas() {
         check_ajax_referer('reservas_nonce', 'nonce');
 
-        $cabana_id = intval($_POST['cabana_id']);
-        $fecha_inicio = sanitize_text_field($_POST['fecha_inicio']);
-        $fecha_fin = sanitize_text_field($_POST['fecha_fin']);
+        $cabana_id = filter_input(INPUT_POST, 'cabana_id', FILTER_VALIDATE_INT);
+        $fecha_inicio = filter_input(INPUT_POST, 'fecha_inicio', FILTER_SANITIZE_STRING);
+        $fecha_fin = filter_input(INPUT_POST, 'fecha_fin', FILTER_SANITIZE_STRING);
+
+        if (!$cabana_id || !$fecha_inicio || !$fecha_fin) {
+            wp_send_json_error(array(
+                'mensaje' => __('Datos inválidos.', 'reservas')
+            ));
+        }
 
         global $wpdb;
         $table_bloqueos = $wpdb->prefix . 'reservas_bloqueos';
@@ -31,13 +52,14 @@ class Reservas_Ajax {
 
         // Verificar bloqueos
         $bloqueos = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM $table_bloqueos 
+            "SELECT COUNT(*) FROM %i 
             WHERE cabana_id = %d 
             AND (
                 (fecha_inicio <= %s AND fecha_fin > %s)
                 OR (fecha_inicio < %s AND fecha_fin >= %s)
                 OR (fecha_inicio >= %s AND fecha_inicio < %s)
             )",
+            $table_bloqueos,
             $cabana_id,
             $fecha_inicio, $fecha_inicio,
             $fecha_fin, $fecha_fin,
@@ -46,15 +68,17 @@ class Reservas_Ajax {
 
         // Verificar solo reservas confirmadas
         $reservas = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM $table_reservas 
+            "SELECT COUNT(*) FROM %i 
             WHERE cabana_id = %d 
-            AND estado = 'confirmada'
+            AND estado = %s
             AND (
                 (fecha_inicio <= %s AND fecha_fin > %s)
                 OR (fecha_inicio < %s AND fecha_fin >= %s)
                 OR (fecha_inicio >= %s AND fecha_inicio < %s)
             )",
+            $table_reservas,
             $cabana_id,
+            'confirmada',
             $fecha_inicio, $fecha_inicio,
             $fecha_fin, $fecha_fin,
             $fecha_inicio, $fecha_fin
@@ -69,17 +93,26 @@ class Reservas_Ajax {
         wp_send_json_success();
     }
 
+    /**
+     * Procesa el envío de una nueva reserva
+     */
     public function enviar_reserva() {
         check_ajax_referer('reservas_nonce', 'nonce');
 
-        parse_str($_POST['formData'], $form_data);
+        parse_str(filter_input(INPUT_POST, 'formData', FILTER_SANITIZE_STRING), $form_data);
 
-        $cabana_id = intval($form_data['cabana_id']);
+        $cabana_id = filter_var($form_data['cabana_id'], FILTER_VALIDATE_INT);
         $nombre = sanitize_text_field($form_data['nombre']);
         $email = sanitize_email($form_data['email']);
         $telefono = sanitize_text_field($form_data['telefono']);
         $fecha_inicio = sanitize_text_field($form_data['fecha_inicio']);
         $fecha_fin = sanitize_text_field($form_data['fecha_fin']);
+
+        if (!$cabana_id || !$nombre || !$email || !$telefono || !$fecha_inicio || !$fecha_fin) {
+            wp_send_json_error(array(
+                'mensaje' => __('Todos los campos son obligatorios.', 'reservas')
+            ));
+        }
 
         global $wpdb;
         $table_reservas = $wpdb->prefix . 'reservas';
@@ -93,16 +126,18 @@ class Reservas_Ajax {
                 'telefono' => $telefono,
                 'fecha_inicio' => $fecha_inicio,
                 'fecha_fin' => $fecha_fin,
-                'estado' => 'pendiente'
+                'estado' => 'pendiente',
+                'fecha_creacion' => current_time('mysql')
             ),
-            array('%d', '%s', '%s', '%s', '%s', '%s', '%s')
+            array('%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s')
         );
 
         if ($resultado) {
             // Enviar email de notificación al administrador
-            $admin_email = get_option('admin_email');
+            $admin_email = get_option('reservas_admin_email', get_option('admin_email'));
             $cabana = $wpdb->get_row($wpdb->prepare(
-                "SELECT nombre FROM {$wpdb->prefix}reservas_cabanas WHERE id = %d",
+                "SELECT nombre FROM %i WHERE id = %d",
+                $wpdb->prefix . 'reservas_cabanas',
                 $cabana_id
             ));
 
@@ -129,12 +164,21 @@ class Reservas_Ajax {
         }
     }
 
+    /**
+     * Obtiene los eventos para el calendario
+     */
     public function obtener_eventos() {
         check_ajax_referer('reservas_nonce', 'nonce');
 
-        $cabana_id = intval($_POST['cabana_id']);
-        $start = sanitize_text_field($_POST['start']);
-        $end = sanitize_text_field($_POST['end']);
+        $cabana_id = filter_input(INPUT_POST, 'cabana_id', FILTER_VALIDATE_INT);
+        $start = filter_input(INPUT_POST, 'start', FILTER_SANITIZE_STRING);
+        $end = filter_input(INPUT_POST, 'end', FILTER_SANITIZE_STRING);
+
+        if (!$cabana_id || !$start || !$end) {
+            wp_send_json_error(array(
+                'mensaje' => __('Datos inválidos.', 'reservas')
+            ));
+        }
 
         global $wpdb;
         $table_bloqueos = $wpdb->prefix . 'reservas_bloqueos';
@@ -144,10 +188,11 @@ class Reservas_Ajax {
 
         // Obtener bloqueos
         $bloqueos = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM $table_bloqueos 
+            "SELECT * FROM %i 
             WHERE cabana_id = %d 
             AND fecha_inicio >= %s 
             AND fecha_fin <= %s",
+            $table_bloqueos,
             $cabana_id,
             $start,
             $end
@@ -155,7 +200,7 @@ class Reservas_Ajax {
 
         foreach ($bloqueos as $bloqueo) {
             $eventos[] = array(
-                'title' => $bloqueo->motivo,
+                'title' => esc_html($bloqueo->motivo),
                 'start' => $bloqueo->fecha_inicio,
                 'end' => $bloqueo->fecha_fin,
                 'className' => 'blocked',
@@ -165,33 +210,37 @@ class Reservas_Ajax {
 
         // Obtener solo reservas confirmadas
         $reservas = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM $table_reservas 
+            "SELECT * FROM %i 
             WHERE cabana_id = %d 
-            AND estado = 'confirmada'
+            AND estado = %s
             AND fecha_inicio >= %s 
             AND fecha_fin <= %s",
+            $table_reservas,
             $cabana_id,
+            'confirmada',
             $start,
             $end
         ));
 
         foreach ($reservas as $reserva) {
-            // No incluimos el último día en el bloqueo visual
             $eventos[] = array(
-                'title' => sprintf(__('Reservado por %s', 'reservas'), $reserva->nombre),
+                'title' => sprintf(__('Reservado por %s', 'reservas'), esc_html($reserva->nombre)),
                 'start' => $reserva->fecha_inicio,
-                'end' => $reserva->fecha_fin, // Ya no sumamos un día
+                'end' => $reserva->fecha_fin,
                 'className' => 'reserved',
                 'display' => 'background',
-                'color' => '#dc3545' // Color rojo para reservas confirmadas
+                'color' => '#dc3545'
             );
         }
 
         wp_send_json_success($eventos);
     }
 
+    /**
+     * Actualiza el estado de una reserva
+     */
     public function handle_update_status() {
-        check_ajax_referer('reservas_nonce', 'nonce');
+        check_ajax_referer('reservas_admin_nonce', 'nonce');
 
         if (!current_user_can('manage_options')) {
             wp_send_json_error(array(
@@ -199,12 +248,12 @@ class Reservas_Ajax {
             ));
         }
 
-        $reserva_id = intval($_POST['reserva_id']);
-        $estado = sanitize_text_field($_POST['estado']);
+        $reserva_id = filter_input(INPUT_POST, 'reserva_id', FILTER_VALIDATE_INT);
+        $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
 
-        if (!in_array($estado, array('confirmada', 'rechazada'))) {
+        if (!$reserva_id || !in_array($estado, array('confirmada', 'rechazada'))) {
             wp_send_json_error(array(
-                'message' => __('Estado no válido.', 'reservas')
+                'message' => __('Datos inválidos.', 'reservas')
             ));
         }
 
@@ -213,7 +262,8 @@ class Reservas_Ajax {
 
         // Obtener información de la reserva
         $reserva = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM $table_reservas WHERE id = %d",
+            "SELECT * FROM %i WHERE id = %d",
+            $table_reservas,
             $reserva_id
         ));
 
@@ -249,7 +299,8 @@ class Reservas_Ajax {
             $reserva->nombre,
             $estado === 'confirmada' ? __('confirmada', 'reservas') : __('rechazada', 'reservas'),
             $wpdb->get_var($wpdb->prepare(
-                "SELECT nombre FROM {$wpdb->prefix}reservas_cabanas WHERE id = %d",
+                "SELECT nombre FROM %i WHERE id = %d",
+                $wpdb->prefix . 'reservas_cabanas',
                 $reserva->cabana_id
             )),
             $reserva->fecha_inicio,
@@ -263,6 +314,9 @@ class Reservas_Ajax {
         ));
     }
 
+    /**
+     * Elimina una cabaña y sus datos relacionados
+     */
     public function handle_delete_cabana() {
         check_ajax_referer('reservas_delete_cabana', 'nonce');
 
@@ -272,7 +326,13 @@ class Reservas_Ajax {
             ));
         }
 
-        $cabana_id = intval($_POST['cabana_id']);
+        $cabana_id = filter_input(INPUT_POST, 'cabana_id', FILTER_VALIDATE_INT);
+
+        if (!$cabana_id) {
+            wp_send_json_error(array(
+                'message' => __('ID de cabaña inválido.', 'reservas')
+            ));
+        }
 
         global $wpdb;
         $table_cabanas = $wpdb->prefix . 'reservas_cabanas';
@@ -294,6 +354,150 @@ class Reservas_Ajax {
 
         wp_send_json_success(array(
             'message' => __('Cabaña eliminada correctamente.', 'reservas')
+        ));
+    }
+
+    /**
+     * Maneja la confirmación de una reserva
+     */
+    public function handle_confirm_reserva() {
+        check_ajax_referer('reservas_admin_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array(
+                'message' => __('No tienes permisos suficientes para realizar esta acción.', 'reservas')
+            ));
+        }
+
+        $reserva_id = filter_input(INPUT_POST, 'reserva_id', FILTER_VALIDATE_INT);
+
+        if (!$reserva_id) {
+            wp_send_json_error(array(
+                'message' => __('ID de reserva inválido.', 'reservas')
+            ));
+        }
+
+        global $wpdb;
+        $table_reservas = $wpdb->prefix . 'reservas';
+
+        // Obtener información de la reserva
+        $reserva = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM %i WHERE id = %d",
+            $table_reservas,
+            $reserva_id
+        ));
+
+        if (!$reserva) {
+            wp_send_json_error(array(
+                'message' => __('Reserva no encontrada.', 'reservas')
+            ));
+        }
+
+        // Actualizar el estado
+        $resultado = $wpdb->update(
+            $table_reservas,
+            array('estado' => 'confirmada'),
+            array('id' => $reserva_id),
+            array('%s'),
+            array('%d')
+        );
+
+        if ($resultado === false) {
+            wp_send_json_error(array(
+                'message' => __('Error al actualizar el estado de la reserva.', 'reservas')
+            ));
+        }
+
+        // Enviar email de notificación
+        $asunto = __('Tu reserva ha sido confirmada', 'reservas');
+        $mensaje = sprintf(
+            __("Hola %s,\n\nTu reserva ha sido confirmada.\n\nDetalles de la reserva:\nCabaña: %s\nFechas: %s a %s\n\nGracias por tu interés.", 'reservas'),
+            $reserva->nombre,
+            $wpdb->get_var($wpdb->prepare(
+                "SELECT nombre FROM %i WHERE id = %d",
+                $wpdb->prefix . 'reservas_cabanas',
+                $reserva->cabana_id
+            )),
+            $reserva->fecha_inicio,
+            $reserva->fecha_fin
+        );
+
+        wp_mail($reserva->email, $asunto, $mensaje);
+
+        wp_send_json_success(array(
+            'message' => __('Reserva confirmada correctamente.', 'reservas')
+        ));
+    }
+
+    /**
+     * Maneja el rechazo de una reserva
+     */
+    public function handle_reject_reserva() {
+        check_ajax_referer('reservas_admin_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array(
+                'message' => __('No tienes permisos suficientes para realizar esta acción.', 'reservas')
+            ));
+        }
+
+        $reserva_id = filter_input(INPUT_POST, 'reserva_id', FILTER_VALIDATE_INT);
+
+        if (!$reserva_id) {
+            wp_send_json_error(array(
+                'message' => __('ID de reserva inválido.', 'reservas')
+            ));
+        }
+
+        global $wpdb;
+        $table_reservas = $wpdb->prefix . 'reservas';
+
+        // Obtener información de la reserva
+        $reserva = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM %i WHERE id = %d",
+            $table_reservas,
+            $reserva_id
+        ));
+
+        if (!$reserva) {
+            wp_send_json_error(array(
+                'message' => __('Reserva no encontrada.', 'reservas')
+            ));
+        }
+
+        // Actualizar el estado
+        $resultado = $wpdb->update(
+            $table_reservas,
+            array('estado' => 'rechazada'),
+            array('id' => $reserva_id),
+            array('%s'),
+            array('%d')
+        );
+
+        if ($resultado === false) {
+            wp_send_json_error(array(
+                'message' => __('Error al actualizar el estado de la reserva.', 'reservas')
+            ));
+        }
+
+        // Enviar email de notificación
+        $asunto = __('Tu reserva ha sido rechazada', 'reservas');
+        $mensaje = sprintf(
+            __("Hola %s,\n\nTu reserva ha sido rechazada.\n\nDetalles de la reserva:\nCabaña: %s\nFechas: %s a %s\n\nGracias por tu interés.", 'reservas'),
+            $reserva->nombre,
+            $wpdb->get_var($wpdb->prepare(
+                "SELECT nombre FROM %i WHERE id = %d",
+                $wpdb->prefix . 'reservas_cabanas',
+                $reserva->cabana_id
+            )),
+            $reserva->fecha_inicio,
+            $reserva->fecha_fin
+        );
+
+        wp_mail($reserva->email, $asunto, $mensaje);
+
+        wp_send_json_success(array(
+            'message' => __('Reserva rechazada correctamente.', 'reservas')
         ));
     }
 }

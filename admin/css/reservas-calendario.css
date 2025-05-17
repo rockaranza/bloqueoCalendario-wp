@@ -1,0 +1,56 @@
+/**
+ * Estilos para la página de calendario de Reservas
+ *
+ * @package Reservas
+ * @since 1.0.0
+ */
+
+.reservas-calendario-container {
+    margin-top: 20px;
+}
+
+.reservas-calendario-header {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    max-width: 300px;
+}
+
+.datepicker {
+    width: 150px !important;
+}
+
+.reservas-bloqueos-lista {
+    background: #fff;
+    padding: 20px;
+    border: 1px solid #ccd0d4;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.wp-list-table {
+    margin-top: 10px;
+}
+
+.delete-bloqueo {
+    color: #dc3545;
+}
+
+.delete-bloqueo:hover {
+    color: #c82333;
+} 

@@ -50,13 +50,4 @@ $admin_email = get_option('reservas_admin_email', get_option('admin_email'));
             </p>
         </form>
     </div>
-</div>
-
-<style>
-.reservas-admin-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-</style> 
+</div> 
